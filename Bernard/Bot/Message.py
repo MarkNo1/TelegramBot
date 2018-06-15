@@ -19,3 +19,7 @@ class Message:
     @staticmethod
     def readID(message):
         return message['chat']['id']
+
+    @staticmethod
+    def readText(message):
+        return message['text']

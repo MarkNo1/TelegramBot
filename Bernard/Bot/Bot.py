@@ -33,19 +33,14 @@ class Bot():
             self.sessions[id] = Session(id)
             self.sessions[id].start()
             self.sessions[id].q_rcv.put(message)
+            self.activateSenderThread(self.sessions[id].q_snd)
 
-    def activateSenderLoop(self):
-        self.thSender = Thread(target=self.senderThreadLoop)
+    def activateSenderThread(self, q_snd):
+        self.thSender = Thread(target=self.senderThread, kwargs={'q_snd': q_snd})
         self.thSender.daemon = True
         self.thSender.start()
 
-    def senderThreadLoop(self):
-        try:
-            while True:
-                for ses in list(self.sessions.values()):
-                    if not ses.q_snd.empty():
-                        message = ses.q_snd.get(block=False)
-                        print(message)
-                        self.bot.sendMessage(**message)
-        except RuntimeError as error:
-            print(error)
+    def senderThread(self, q_snd):
+        while True:
+            message = q_snd.get(block=True)
+            self.bot.sendMessage(**message)

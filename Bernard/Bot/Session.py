@@ -22,8 +22,6 @@ class Session(Thread):
     def run(self):
         # Init session with conversation 1
         while(True):
-            if not self.q_conv.empty():
-                conversation = self.q_conv.get()
-                conversation.start()
-                print('Conversation: {}  started. '.format(conversation.name))
-                conversation.join()
+            conversation = self.q_conv.get(block=True)
+            conversation.start()
+            conversation.join()
