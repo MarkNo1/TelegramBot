@@ -1,4 +1,5 @@
 from threading import Thread
+import os
 
 from telepot.loop import MessageLoop
 import telepot
@@ -6,6 +7,7 @@ import telepot
 from Bot.Users import Users
 from Bot.Message import Message as msg
 from Bot.Session import Session
+import os
 
 
 def readKey():
@@ -15,6 +17,7 @@ def readKey():
 
 class Bot():
     def __init__(self):
+
         self.bot = telepot.Bot(readKey())
         self.users = Users()
         self.currentSession = dict()
@@ -42,7 +45,6 @@ class Bot():
 
     def addNewUser(self, user_info):
         print('Adding new user : ', user_info['id'])
-        id = user_info['id']
         self.users.add(user_info)
         self.users.save()
 

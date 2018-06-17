@@ -1,8 +1,5 @@
-from tabulate import tabulate
-import time
-import os
-import re
 import pickle
+import os
 
 LOG = './Bot/log/Users.pkl'
 W = 'wb'

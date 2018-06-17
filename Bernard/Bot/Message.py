@@ -1,6 +1,4 @@
 from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton
-from tabulate import tabulate
-import datetime as dt
 
 
 class Message:

@@ -1,8 +1,6 @@
 from Bot.Message import Message as msg
 from Bot.BaseEntity.QueueTHEntity import QueueTHEntity, TypeQ
 
-import subprocess
-
 
 class Conversation(QueueTHEntity):
     def __init__(self, convEntity):
