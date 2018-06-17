@@ -1,27 +1,20 @@
-from threading import Thread
-from queue import Queue
-
-from Bot.Conversation import Intro
+from Bot.Conversations import Intro, WelcomeBack
+from Bot.BaseEntity.QueueTHEntity import QueueTHEntity, TypeQ
 
 
-class Session(Thread):
-    def __init__(self, id, intro=True):
-        Thread.__init__(self)
-        print('Session created')
-        self.id = id
-        self.q_snd = Queue()
-        self.q_rcv = Queue()
-        self.q_conv = Queue()
-        self.daemon = True
-        if intro:
-            self.q_conv.put(Intro(self.id, self.q_snd, self.q_rcv, self.q_conv))
+class Session(QueueTHEntity):
+    def __init__(self, user, queue=None, welcomeBack=False):
+        super().__init__(user, queue)
+        if welcomeBack:
+            self.addNextConversationQ(WelcomeBack(self))
         else:
-            # welcome
-            pass
+            self.addNextConversationQ(Intro(self))
 
-    def run(self):
-        # Init session with conversation 1
+    def getSenderQ(self):
+        return self.queue[TypeQ.MSG_SENDER]
+
+    def task(self):
         while(True):
-            conversation = self.q_conv.get(block=True)
+            conversation = self.getNextConversationQ()
             conversation.start()
             conversation.join()

@@ -5,7 +5,6 @@ import telepot
 
 from Bot.Users import Users
 from Bot.Message import Message as msg
-from Bot.Conversation import Conversation
 from Bot.Session import Session
 
 
@@ -18,25 +17,38 @@ class Bot():
     def __init__(self):
         self.bot = telepot.Bot(readKey())
         self.users = Users()
-        self.sessions = dict()
-        # self.users.load()
+        self.currentSession = dict()
+        self.users.load()
+        for user in self.users.U.values():
+            self.initSession(user, True)
+
+    def initSession(self, user, welcomeBack=False):
+        self.currentSession[user['id']] = Session(
+            user, welcomeBack=welcomeBack)
+        self.currentSession[user['id']].start()
+        self.activateSenderThread(self.currentSession[user['id']].getSenderQ())
 
     def activateReciveLoop(self):
-        MessageLoop(self.bot, self.messagesDispacher).run_as_thread()
+        MessageLoop(self.bot, self.messagesDispachter).run_as_thread()
 
-    def messagesDispacher(self, message):
-        id = msg.readID(message)
-        if id in self.sessions:
-            ses = self.sessions[id]
-            ses.q_rcv.put(message)
-        else:
-            self.sessions[id] = Session(id)
-            self.sessions[id].start()
-            self.sessions[id].q_rcv.put(message)
-            self.activateSenderThread(self.sessions[id].q_snd)
+    def messagesDispachter(self, message):
+        user = msg.readUser(message)
+        if not user == self.users:
+            self.addNewUser(user)
+            self.initSession(user)
+
+        print(self.currentSession[user['id']])
+        self.currentSession[user['id']].addMessageToReceiverQ(message)
+
+    def addNewUser(self, user_info):
+        print('Adding new user : ', user_info['id'])
+        id = user_info['id']
+        self.users.add(user_info)
+        self.users.save()
 
     def activateSenderThread(self, q_snd):
-        self.thSender = Thread(target=self.senderThread, kwargs={'q_snd': q_snd})
+        self.thSender = Thread(target=self.senderThread,
+                               kwargs={'q_snd': q_snd})
         self.thSender.daemon = True
         self.thSender.start()
 

@@ -23,3 +23,7 @@ class Message:
     @staticmethod
     def readText(message):
         return message['text']
+
+    @staticmethod
+    def readUser(message):
+        return message['from']
