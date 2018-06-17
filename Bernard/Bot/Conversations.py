@@ -28,6 +28,8 @@ class Menu(Conversation):
             self.addNextConversationQ(List(self))
         elif 'Credits' in cmd:
             self.addNextConversationQ(Credits(self))
+        elif 'Root':
+            self.addNextConversationQ(Root(self))
         else:
             self.addNextConversationQ(Menu(self))
 
@@ -60,6 +62,7 @@ class Root(Conversation):
         response = None
         cmd = self.sendTextWaitAnswer('Insert Password!')
         if cmd == 'super':
+            print('Accepted!')
             while(response != 'exit'):
                 response = self.sendTextWaitAnswer('>')
                 commands = response.split()
@@ -68,4 +71,6 @@ class Root(Conversation):
                 out = output.decode('utf-8').split('\n')
                 out = "\n".join(out)
                 self.sendText(out)
-            self.addNextConversationQ(Menu(self))
+        else:
+            print('Error! credential non valid')
+        self.addNextConversationQ(Menu(self))
