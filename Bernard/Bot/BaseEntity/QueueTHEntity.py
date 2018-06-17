@@ -4,7 +4,6 @@ from mark_utils.color import Color as c
 from queue import Queue
 from enum import Enum
 import abc
-import datetime
 
 # Queue Enum
 
@@ -21,7 +20,7 @@ class QueueTHEntity(Thread):
     def __del__(self):
         self.timeEnd = now()
         time = '[' + str(self.timeEnd) + ']'
-        print(c.orange(time), self.info(), '| DT: ',
+        print(c.orange(time), ' End ', self.info(), '| DT: ',
               delta(self.timeStart, self.timeEnd))
 
     def __init__(self, user, queue):
@@ -31,7 +30,7 @@ class QueueTHEntity(Thread):
         self.daemon = True
         self.timeStart = now()
         time = '[' + str(self.timeStart) + ']'
-        print(c.green(time), self.info())
+        print(c.green(time), ' Start ', self.info())
         if queue:
             self.queue = queue
         else:
@@ -67,7 +66,7 @@ class QueueTHEntity(Thread):
         try:
             self.task()
         except Exception as e:
-            print(e)
+            print(c.red(str(e)))
 
     @abc.abstractmethod
     def task(self):

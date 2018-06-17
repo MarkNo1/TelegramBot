@@ -20,9 +20,8 @@ class Intro(Conversation):
 class Menu(Conversation):
     def task(self):
         answ = self.sendTextWithKeyboard("What you want to do?", [
-                                         'Download', 'List Contents', 'Credits'])
+                                         'Download', 'List Contents', 'Credits', 'Root'])
         cmd = msg.readText(answ)
-        print(cmd)
         if 'Download' in cmd:
             self.addNextConversationQ(Download(self))
         elif 'List Contents' in cmd:
@@ -41,20 +40,32 @@ class Download(Conversation):
 
 class List(Conversation):
     def task(self):
-        try:
-            self.sendText('List of Conentents')
-            # p = subprocess.Popen(["ls", '/mnt/Film'],  stdout=subprocess.PIPE)
-            # (output, err) = p.communicate()
-            # out = output.decode('utf-8').split('\n')
-            # out = "\n".join(out)
-            # self.sendText(out)
-        except Exception as e:
-            print(e)
-        finally:
-            self.addNextConversationQ(Menu(self))
+        self.sendText('List of Conentents')
+        p = subprocess.Popen(["ls", '/mnt/Film'],  stdout=subprocess.PIPE)
+        (output, err) = p.communicate()
+        out = output.decode('utf-8').split('\n')
+        out = "\n".join(out)
+        self.sendText(out)
+        self.addNextConversationQ(Menu(self))
 
 
 class Credits(Conversation):
     def task(self):
         self.sendText('Credits Markno1 (TM)')
         self.addNextConversationQ(Menu(self))
+
+
+class Root(Conversation):
+    def task(self):
+        response = None
+        cmd = self.sendTextWaitAnswer('Insert Password!')
+        if cmd == 'super':
+            while(response != 'exit'):
+                response = self.sendTextWaitAnswer('>')
+                commands = response.split()
+                p = subprocess.Popen(commands,  stdout=subprocess.PIPE)
+                (output, err) = p.communicate()
+                out = output.decode('utf-8').split('\n')
+                out = "\n".join(out)
+                self.sendText(out)
+            self.addNextConversationQ(Menu(self))
