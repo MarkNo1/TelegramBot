@@ -1,12 +1,12 @@
 from Bot.BaseEntity.ConversationTHEntity import Conversation
 from Bot.Message import Message as msg
-import os
+from Bot.Plex import read
 import subprocess
 
 
 class WelcomeBack(Conversation):
     def task(self):
-        self.sendText('Bernard 0.1 is glad to be online again!')
+        self.sendText('Bernard 0.1 is back online!')
         self.addNextConversationQ(Menu(self))
 
 
@@ -19,9 +19,9 @@ class Intro(Conversation):
 
 class Menu(Conversation):
     def task(self):
-        answ = self.sendTextWithKeyboard("What you want to do?", [
+        answ = self.sendTextWithKeyboard("Menu'", [
                                          'Download', 'List Contents',
-                                         'Credits', 'Root'])
+                                         'Credits'])
         cmd = msg.readText(answ)
         if 'Download' in cmd:
             self.addNextConversationQ(Download(self))
@@ -44,12 +44,8 @@ class Download(Conversation):
 class List(Conversation):
     def task(self):
         self.sendText('List of Conentents')
-        # '/mnt/Film'
-        # p = subprocess.Popen(["ls", '-a'],  stdout=subprocess.PIPE)
-        # (output, err) = p.communicate()
-        # out = output.decode('utf-8').split('\n')
-        # out = "\n".join(out)
-        # self.sendText(out)
+        movies = read('Movies.txt')
+        self.sendText(movies)
         self.addNextConversationQ(Menu(self))
 
 
@@ -61,23 +57,26 @@ class Credits(Conversation):
 
 class Root(Conversation):
     def task(self):
-        response = None
-        resp = self.sendTextWaitAnswer('Insert Password!')
+        carryOn = True
+        resp = self.sendTextWaitAnswer('Insert the password!')
         cmd = msg.readText(resp)
         if cmd == 'Super':
-            print('Accepted!')
-            while(response != 'exit'):
+            self.sendText('Password Accepted - Type "quit" to exit')
+            while(carryOn):
                 try:
                     response = self.sendTextWaitAnswer('>')
-                    commands = msg.readText(response).split()
-                    self.sendText(commands)
-                    print(commands)
-                    p = subprocess.Popen(
-                        commands,  stdout=subprocess.PIPE, shell=True)
-                    (output, err) = p.communicate()
-                    out = output.decode('utf-8').split('\n')
-                    out = "\n".join(out)
-                    self.sendText(out)
+
+                    if msg.readText(response) == 'quit':
+                        carryOn = False
+                    else:
+                        commands = msg.readText(response).split()
+                        self.sendText(commands)
+                        p = subprocess.Popen(
+                            commands,  stdout=subprocess.PIPE, shell=True)
+                        (output, err) = p.communicate()
+                        out = output.decode('utf-8').split('\n')
+                        out = "\n".join(out)
+                        self.sendText(out)
                 except Exception as e:
                     errorLog = 'Error processing: ' + str(commands)
                     print(errorLog)

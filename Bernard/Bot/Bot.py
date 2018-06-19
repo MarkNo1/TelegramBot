@@ -7,7 +7,8 @@ import telepot
 from Bot.Users import Users
 from Bot.Message import Message as msg
 from Bot.Session import Session
-import os
+from Bot.Plex import read
+from Plex import mPlex
 
 
 def readKey():
@@ -17,8 +18,8 @@ def readKey():
 
 class Bot():
     def __init__(self):
-
         self.bot = telepot.Bot(readKey())
+        self.myPlex = mPlex()
         self.users = Users()
         self.currentSession = dict()
         self.users.load()
